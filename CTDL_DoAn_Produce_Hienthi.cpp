@@ -336,7 +336,7 @@ int main() {
             case 4: {
                 system("cls");
                 if (!dangNhap()) {
-                    cout << "Ban da dang nhap sai 3 lan. Dang nhap that bai. Quay ve menu lua chon.\n";
+                    cout << "Dang nhap that bai. Quay ve menu lua chon.\n";
                     break;
                 }
                 hienThiMenuQuanLy();
