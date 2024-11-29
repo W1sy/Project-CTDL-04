@@ -3,6 +3,9 @@
 #include <string>
 #include <iomanip>
 #include <cstdlib>
+#include <windows.h>
+#include <conio.h>
+#include <limits>
 using namespace std;
 
 #define RESET "\033[0m"
@@ -11,6 +14,7 @@ using namespace std;
 #define YELLOW "\033[38;5;226m"
 #define GREEN "\033[38;5;46m"
 #define CYAN "\033[36m"
+#define RED "\033[31m"
 
 struct HangHoa {
     string maHang;
@@ -101,10 +105,12 @@ void hienThiHangHoa(HangHoa* danhSach) {
 void hienThiDanhMuc() {
     cout << GREEN;
     cout << setw(60) << right << string(40, '*') << endl;
-    cout << setw(21) << right << "*" << CYAN << "            DANH MUC LUA CHON         " << GREEN << "*" << endl;
+    cout << setw(21) << right << "*" << CYAN << "              MENU LUA CHON           " << GREEN << "*" << endl;
     cout << GREEN;
     cout << setw(60) << right << "*          1. Hien thi hang hoa        *" << endl;
     cout << setw(60) << right << "*          2. Tim kiem hang hoa        *" << endl;
+    cout << setw(60) << right << "*          3. Dat hang                 *" << endl;
+    cout << setw(60) << right << "*          4. Quan ly                  *" << endl;
     cout << setw(60) << right << "*          0. Thoat                    *" << endl;
     cout << setw(60) << right << string(40, '*') << RESET << endl;
     cout << setw(46) << right << "Nhap lua chon: ";
@@ -149,6 +155,141 @@ void timKiemHangHoa(HangHoa* danhSach, const string& tuKhoa) {
     }
 }
 
+bool kiemTraDangNhap(const string& user, const string& password) {
+    ifstream file("Admin.txt");
+    if (!file) {
+        cout << "Khong the mo file Admin.txt de kiem tra dang nhap.\n";
+        return false;
+    }
+
+    string fileUser, filePassword;
+    while (file >> fileUser >> filePassword) {
+        if (fileUser == user && filePassword == password) {
+            return true;
+        }
+    }
+
+    file.close();
+    return false;
+}
+
+string nhapMatKhau() {
+    string password;
+    char ch;
+    while (true) {
+        ch = _getch();
+        if (ch == 27) {
+            return "EXIT";
+        }
+        else if (ch == '\r') {
+            break;
+        }
+        else if (ch == '\b') {
+            if (!password.empty()) {
+                cout << "\b \b";
+                password.pop_back();
+            }
+        }
+        else {
+            password += ch;
+            cout << '*';
+        }
+    }
+    cout << endl;
+    return password;
+}
+
+void hienThiMenuQuanLy() {
+    int luaChon;
+    do {
+        system("cls");
+        cout << GREEN;
+        cout << setw(60) << right << string(40, '*') << endl;
+        cout << setw(21) << right << "*" << CYAN << "            MENU QUAN LY              " << GREEN << "*" << endl;
+        cout << GREEN;
+        cout << setw(60) << right << "*          1. Xu ly don hang           *" << endl;
+        cout << setw(60) << right << "*          2. Quan ly hang hoa         *" << endl;
+        cout << setw(60) << right << "*          0. Thoat                    *" << endl;
+        cout << setw(60) << right << string(40, '*') << RESET << endl;
+        cout << setw(46) << right << "Nhap lua chon: ";
+        cin >> luaChon;
+
+        switch (luaChon) {
+        case 1:
+            cout << "Xy ly don hang" << endl;
+            break;
+        case 2: {
+            cout << "Quan ly don hang" << endl;
+            break;
+        }
+        case 0:
+            cout << "Tro ve menu lua chon.\n";
+            break;
+        default:
+            cout << "Lua chon khong hop le.\n";
+            break;
+        }
+
+        if (luaChon != 0) {
+            cout << "Nhan Enter de tiep tuc...";
+            cin.ignore();
+            cin.get();
+        }
+    } while (luaChon != 0);
+}
+
+bool dangNhap() {
+    string user, password;
+    int soLanThu = 0;
+    char key;
+
+    while (soLanThu < 3) {
+        system("cls");
+        cout << YELLOW;
+        cout << setw(60) << right << string(40, '*') << endl;
+        cout << setw(21) << right << "*" << RESET;
+        cout << GREEN << "           DANG NHAP HE THONG         " << RESET;
+        cout << YELLOW << "*" << endl;
+        cout << setw(60) << right << string(40, '*');
+        cout << RESET << endl;
+        cout << GREEN;
+        
+        cout << setw(38) << right << "User: " << RESET;
+        key = _getch();
+        if (key == 27) {
+            cout << "\nThoat khoi he thong.\n";
+            return false;
+        }
+        cin.putback(key);
+        cin.ignore();
+        cin >> user;
+        cout << GREEN << setw(42) << right << "Password: " << RESET;
+        password = nhapMatKhau();
+        if (password == "EXIT") {
+            cout << "\nThoat khoi he thong.\n";
+            return false;
+        }
+
+        if (kiemTraDangNhap(user, password)) {
+            return true;
+        }
+        else {
+            soLanThu++;
+            if (soLanThu < 3) {
+                cout << RED << "Sai ten dang nhap hoac mat khau.\n" << RESET;
+                cout << "Nhan Enter de nhap lai...";
+                cin.ignore(10000, '\n');
+                key = _getch();
+                if (key == 27) {
+                    cout << "\nThoat khoi he thong.\n";
+                    return false;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void xoaDanhSach(HangHoa*& danhSach) {
     while (danhSach) {
         HangHoa* temp = danhSach;
@@ -157,8 +298,18 @@ void xoaDanhSach(HangHoa*& danhSach) {
     }
 }
 
+void hideCursor() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(hConsole, &cursorInfo);
+    cursorInfo.bVisible = FALSE; // Ẩn con trỏ
+    SetConsoleCursorInfo(hConsole, &cursorInfo);
+}
+
 int main() {
-    HangHoa* danhSachHangHoa = docHangHoa("HangHoa.txt");
+    hideCursor();
+
+    HangHoa* danhSachHangHoa = docHangHoa("Hanghoa.txt");
     int luaChon;
 
     do {
@@ -167,23 +318,36 @@ int main() {
         cin >> luaChon;
 
         switch (luaChon) {
-        case 1:
-            hienThiHangHoa(danhSachHangHoa);
-            break;
-        case 2: {
-            cout << "Nhap ma hoac ten hang hoa de tim kiem: ";
-            cin.ignore();
-            string tuKhoa;
-            getline(cin, tuKhoa);
-            timKiemHangHoa(danhSachHangHoa, tuKhoa);
-            break;
-        }
-        case 0:
-            cout << "Thoat chuong trinh.\n";
-            break;
-        default:
-            cout << "Lua chon khong hop le.\n";
-            break;
+            case 1:
+                hienThiHangHoa(danhSachHangHoa);
+                break;
+            case 2: {
+                cout << "Nhap ma hoac ten hang hoa de tim kiem: ";
+                cin.ignore();
+                string tuKhoa;
+                getline(cin, tuKhoa);
+                timKiemHangHoa(danhSachHangHoa, tuKhoa);
+                break;
+            }
+            case 3: {
+                cout << "Dat hang" << endl;
+                break;
+            }
+            case 4: {
+                system("cls");
+                if (!dangNhap()) {
+                    cout << "Ban da dang nhap sai 3 lan. Dang nhap that bai. Quay ve menu lua chon.\n";
+                    break;
+                }
+                hienThiMenuQuanLy();
+                break;
+            }
+            case 0:
+                cout << "Thoat chuong trinh.\n";
+                break;
+            default:
+                cout << "Lua chon khong hop le.\n";
+                break;
         }
 
         if (luaChon != 0) {
