@@ -1,0 +1,9 @@
+0001; Dong ho Thuy Si; Thuy Si; Den; 3000000; 12/01/2022; 1000
+0002; But muc; TPHCM, Viet Nam; Xanh; 15000; 02/10/2022; 3200
+0003; May tinh cam tay FX-580; Trung Quoc; Trang; 580000; 19/11/2022; 150
+0004; Giay trang (A4); Tan Binh, TPHCM, Viet Nam; Trang; 2000; 18/11/2022; 1000
+0006; Bo SGK Lop 12; Long Bien, Ha Noi; Trang; 200000; 05/11/2022; 100
+0007; Ban hoc; Nau; 75000; 22/11/2022; 75
+0009; Hop But; Hoan Kiem, Ha Noi; Trang; 50000; 25/5/2022; 500
+0010; LT Gaming Acer; Dai Loan; Den; 19000000; 12/3/2022; 1500
+0011; Macbook; Hoa Ky; Trang; 50000000; 15/02/2022; 1000
